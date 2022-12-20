@@ -1,46 +1,62 @@
 <?php
 
-$students = [
-    'ИТ20' => [
-        'Иванов Иван' => 5,
-        'Кириллов Кирилл' => 3,
-        'Петров Иван' => 5,
-        'Сидоров Олег' => 2,
+$box = [
+    [
+        0 => 'Тетрадь',
+        1 => 'Книга',
+        2 => 'Настольная игра',
+        3 => [
+            'Настольная игра',
+            'Настольная игра',
+        ],
+        4 => [
+            [
+                'Ноутбук',
+                'Зарядное устройство'
+            ],
+            [
+                'Компьютерная мышь',
+                'Набор проводов',
+                [
+                    'Фотография',
+                    'Картина'
+                ]
+            ],
+            [
+                'Инструкция',
+                [
+                    'Ключ'
+                ]
+            ]
+        ]
     ],
-    'БАП20' => [
-        'Антонов Антон' => 4,
-        'Денисов Антон' => 2,
-        'Климанов Антон' => 2
-    ],
-    'ЛАП20' => [
-        'Фролов Антон' => 2,
-        'Легков Антон' => 4,
-        'Самсонов Антон' => 4
+    [
+        0 => 'Пакет кошачьего корма',
+        1 => [
+            'Музыкальный плеер',
+            'Книга'
+        ]
     ]
 ];
 
-$arrayGroup = array();
-$arrayStudents = array();
+$res = search('Зарядное устройство', $box);
+var_dump($res);
 
-foreach ($students as $keyGroup => $group) {
+$text = (string) readline("Введите название: ");
+$res = search($text, $box);
+var_dump($res);
+function search(string $name, array $array): bool
+{
+    foreach ($array as $value) {
 
-    foreach ($group as $keyValuse => $value) {
-        $arrayGroup[$keyGroup] += $value;
-
-        if ($value < 3) {
-            $arrayStudents[$keyGroup][] = $keyValuse;
+        if (is_array($value)) {
+            $res = search($name, $value);
+            if ($res === true) {
+                return true;
+            }
+        } elseif ($name === $value) {
+            return true;
         }
     }
-
-    $arrayGroup[$keyGroup] = $arrayGroup[$keyGroup] / count($group);
-}
-
-echo "Рейтинг по группам: \n";
-arsort($arrayGroup);
-foreach ($arrayGroup as $key => $val) {
-    echo "$key = $val\n";
-}
-echo "Первое место - " . array_keys($arrayGroup)[0] . "\n";
-
-echo "Список студентов на отчисление: \n";
-print_r($arrayStudents);
+    return false;
+};
