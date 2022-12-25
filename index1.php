@@ -1,19 +1,11 @@
 <?php
 
-$array1 = array(1, 2, 3, 4, 6, 7, 8, 9, 10);
-$array2 = array(1, 2, 3, 4, 6, 7, 8, 9, 10);
-$arrayRes = array();
+$array = [4, 5, 1, 4, 7, 8, 15, 6, 71, 45, 2];
 
-foreach ($array1 as $key => $item1) {
-    $arrayRes[] = $item1 * $array2[$key];
-}
-
-print_r($arrayRes);
-
-//================================================================
-
-for ($i = 0; $i < count($array1); $i++) {
-    $array2[$i] = $array1[$i] * $array2[$i];
-}
-
-print_r($array2);
+$b = array_map('calc', $array);
+print_r($b);
+function calc(int $n): string
+{
+    $res = ($n & 1) ? $n . " - Нечетное" : $n . " - Четное";
+    return $res;
+};
