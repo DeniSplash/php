@@ -1,6 +1,10 @@
 <?php
+
+require_once 'User.php';
+
 class Task
 {
+	private int $id;
     private string $description;
     private DateTime $dateCreated;
     private DateTime $dateUpdated;
@@ -10,12 +14,20 @@ class Task
     private User $owner;
     private array $comments = [];
     
-    public function __construct(string $description, User $owner)
+    public function __construct(int $id, string $description, User $owner)
     {
+		$this->id = $id;
         $this->description = $description;
         $this->owner = $owner;
         $this->dateCreated = new DateTime();
+		$this->isDone = false;
     }
+
+public function getId(): int 
+{ 
+	return $this->id;
+}
+
 	public function getDateCreated(): string {
 		return $this->dateCreated->format('d.m.Y H:i:s');
 	}
