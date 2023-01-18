@@ -74,11 +74,11 @@
     <br>
 
     <h4 class="mb-3">Новая задача</h4>
-        <form method="post" class="needs-validation" novalidate>
+        <form action="/?controller=tasks&action=add" method="post" class="needs-validation" novalidate>
         <div class="row g-3">
             <div class="col-sm-6">
-            <label for="description" class="form-label">Название задачи</label>
-            <input type="text" class="form-control" id="description" name="description" placeholder="" value="" required>
+            <label for="task" class="form-label">Название задачи</label>
+            <input type="text" class="form-control" id="task" name="task" placeholder="" value="" required>
             <div class="invalid-feedback">
                 Valid first name is required.
             </div>
@@ -93,16 +93,16 @@
     <div class="row g-5">
 
     <div class="row g-5">
-            <form method="post" class="col-lg-2 ">
-                <button id="showDone" name="showDone" class="w-5 btn btn-success" type="submit">Выполненные</button>
+            <form method="post" action="/?controller=tasks&action=showDone" class="col-lg-2 ">
+                <button class="w-5 btn btn-success" type="submit">Выполненные</button>
             </form>
 
-            <form method="post" class="col-lg-2 ">
-                <button id="showUnDone" name="showUnDone" class="w-5 btn btn-danger" type="submit">Невыполненные</button>
+            <form method="post" action="/?controller=tasks&action=showUnDone" class="col-lg-2 ">
+                <button class="w-5 btn btn-danger" type="submit">Невыполненные</button>
             </form>
 
-            <form method="post" class="col-lg-2 ">
-                <button id="showUnDone" name="showAll" class="w-5 btn btn-primary" type="submit">Все</button>
+            <form method="post" action="/?controller=tasks&action=showAll" class="col-lg-2 ">
+                <button class="w-5 btn btn-primary" type="submit">Все</button>
             </form>
     </div>
 
@@ -110,34 +110,24 @@
         <h4 class="d-flex justify-content-between align-items-center mb-3">
         <span class="text-primary">Список задач</span>
         </h4>
+
+        
+
         <ul class="list-group mb-3">
             <?php if (count($tasks) > 0):?>
-            <?php foreach ($tasks as $key => $taskMy):?>
-            <div>
-                
-                <li class="list-group-item d-flex justify-content-between lh-sm">
-                <div>
-                    <h6 class="my-0"><?=$taskMy->getDescription()?></h6>
-                    <small class="text-muted"><?=$taskMy->getDateCreated()?></small>
-                </div>
-                <div class="form-check" >
-                    <?php if ($taskMy->getIsDone()):?>
-                        <form method="post" class="col-lg-2 ">
-                            <input type="text" id="isDoneId" name="isDoneId" class="form-control d-none" value="<?=$taskMy->getId()?>" required="">
-                            <input type="submit" name="formSubmit" class="w-5 btn btn-danger" value="Отменить" />
-                        </form>
-                    <?php endif ?>
-                    
-                    <?php if (!$taskMy->getIsDone()):?>
-                        <form method="post" class="col-lg-2 ">
-                            <input type="text" id="isDoneId" name="isDoneId" class="form-control d-none" value="<?=$taskMy->getId()?>" required="">
-                            <input type="submit" name="formSubmit" class="w-5 btn btn-success" value="Выполнить" />
-                        </form>
-                    <?php endif ?>
-                </div>
-                </li>
-            </div>
-            <?php endforeach?>
+                <?php foreach ($tasks as $task): ?>
+                    <li class="list-group-item d-flex justify-content-between lh-sm">
+                    <div id="<?=$task->getId()?>">
+                        <h6 class="my-0"><?=$task->getDescription()?></h6>
+                        <small class="text-muted"><?=$task->getDateCreated()?></small>
+                    </div>
+                    <div class="form-check" >
+                        <a class="w-5 btn btn-danger" href="/?controller=tasks&action=dell&id=<?=$task->getId()?>">Удалить</a>
+                        <?php if (!$task->isDone()):?>
+                        <a class="w-5 btn btn-success" href="/?controller=tasks&action=done&id=<?=$task->getId()?>">Выполнить</a>
+                        <?php endif ?>
+                    </div>
+                <?php endforeach; ?>
             <?php endif ?>
         </ul>
     </div>

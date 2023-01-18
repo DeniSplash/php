@@ -1,61 +1,64 @@
 <?php
-
-require_once 'model/UserProvider.php';
-require_once 'model/TaskProvider.php';
-require_once 'model/Task.php';
+include_once "model/User.php";
+include_once "model/Task.php";
+include_once "model/TaskProvider.php";
+$pdo = require 'db.php';
 
 session_start();
 
-$pageHeader = "Задачи";
+$filtred = false;
 
 $username = null;
-
 if (isset($_SESSION['username'])) {
-    $user = $_SESSION['username'];
-    $username = $user->getUsername();
-}
-
-$error = null;
-
-if (isset($_POST['description'])) {
-    ['description' => $description] = $_POST;
-
-    $taskProvider = new TaskProvider();
-
-    if (isset($_SESSION['tasks'])) {
-        $taskProvider->setTasks($_SESSION['tasks']);
-    }
-
-    $taskProvider->addNewTask($description, $user);
-
-    $_SESSION['tasks'] = $taskProvider->getTasks();
-}
-
-if (isset($_SESSION['tasks'])) {
-    $tasks = $_SESSION['tasks'];
+    $username = $_SESSION['username']->getUsername();
 } else {
-    $tasks = array();
+    header("Location: /");
+    die();
 }
 
-if (isset($_POST['showUnDone'])) {
-    $tasks = TaskProvider::getUndoneList($_SESSION['tasks']);
+$taskProvider = new TaskProvider($pdo);
+
+if (isset($_GET['action']) && $_GET['action'] === 'add') {
+    $taskProvider->addTask(new Task($_POST['task']));
+    header("Location: /?controller=tasks");
+    die();
 }
 
-if (isset($_POST['showDone'])) {
-    $tasks = TaskProvider::getDoneList($_SESSION['tasks']);
+if (isset($_GET['action']) && $_GET['action'] === 'showDone') {
+    $filtred = true;
+    $tasks = $taskProvider->getDoneList();
+
 }
 
-if (isset($_POST['showAll'])) {
-    $tasks = $_SESSION['tasks'];
-}
-
-if (isset($_POST['isDoneId'])) {
-
-    $isDoneId = (string)$_POST["isDoneId"];
-    echo $isDoneId;
-    $tasks[$isDoneId]->setIsDone(!$tasks[$isDoneId]->getIsDone());
-
+if (isset($_GET['action']) && $_GET['action'] === 'showUnDone') {
+    $filtred = true;
+    $tasks = $taskProvider->getUndoneList();
     
 }
+
+if (isset($_GET['action']) && $_GET['action'] === 'showAll') {
+    $filtred = false;
+}
+
+if (isset($_GET['action']) && $_GET['action'] === 'done') {
+    $id = $_GET['id'];
+    $taskProvider->doDoneTask($id);
+    header("Location: /?controller=tasks");
+    die();
+}
+
+if (isset($_GET['action']) && $_GET['action'] === 'dell') {
+    $id = $_GET['id'];
+    $taskProvider->dellTask($id);
+    header("Location: /?controller=tasks");
+    die();
+}
+
+$pageHeader = "Задачи";
+
+if ($filtred === false) {
+    $tasks = $taskProvider->getAllList();
+}
+
 
 include "view/tasks.php";

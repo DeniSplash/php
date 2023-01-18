@@ -1,68 +1,92 @@
 <?php
 
-require_once 'Task.php';
-require_once 'User.php';
-
 class TaskProvider
 {
-    private array $tasks = array();
+    private PDO $pdo;
 
-    public function getTasks() : ?array 
-    { 
-        return $this->tasks;
-    }
-
-    public function addNewTask(string $description, User $owner) : ?array
+    public function __construct(PDO $pdo)
     {
-        $idTask = count($this->tasks) + 1;
-
-        $this->tasks[$idTask] = new Task($idTask, $description, $owner);
-        return $this->tasks;
+        $this->pdo = $pdo;
     }
 
-    public function setTasks(array $taskSesion) : ?array
+    public function doDoneTask(int $id): bool
     {
-        $this->tasks = $taskSesion;
-        return $this->tasks;
+        $statement = $this->pdo->prepare(
+            'UPDATE tasks SET isDone = 1 WHERE id = :id AND user_id = :user_id'
+        );
+
+        $res = $statement->execute([
+            'user_id' => $_SESSION['user_id'],
+            'id' => $id,
+        ]);
+
+        return $res;
     }
 
-    public static function getUndoneList (array $tasks) : ?array
+    public function dellTask(int $id): bool
     {
-        $arr = array();
+        $statement = $this->pdo->prepare(
+            'DELETE FROM tasks WHERE id = :id AND user_id = :user_id'
+        );
 
-        foreach ($tasks as $value) {
-            if (!$value->getIsDone()) {
-                $arr[] = $value;
-            }
-        }
+        $res = $statement->execute([
+            'user_id' => $_SESSION['user_id'],
+            'id' => $id,
+        ]);
 
-        return $arr;
+        return $res;
     }
 
-    public static function getDoneList (array $tasks) : ?array
+    public function getUndoneList(): array
     {
-        $arr = array();
+        $statement = $this->pdo->prepare(
+            'SELECT * FROM tasks WHERE isDone = 0 AND user_id = :id'
+        );
 
-        foreach ($tasks as $value) {
-            if ($value->getIsDone()) {
-                $arr[] = $value;
-            }
-        }
+        $statement->execute([
+            'id' => $_SESSION['user_id'],
+        ]);
 
-        return $arr;
+        return $statement->fetchAll(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, Task::class);
     }
 
-    public static function setDone () : ? Task
+    public function getDoneList(): array
     {
-        $task = $tasks[0];
+        $statement = $this->pdo->prepare(
+            'SELECT * FROM tasks WHERE isDone = 1 AND user_id = :id'
+        );
 
-        $task->setDone(false);
+        $statement->execute([
+            'id' => $_SESSION['user_id'],
+        ]);
 
-        return $task;
+        return $statement->fetchAll(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, Task::class);
     }
 
-    
+    public function getAllList(): array
+    {
+        $statement = $this->pdo->prepare(
+            'SELECT * FROM tasks WHERE user_id = :id'
+        );
+
+        $statement->execute([
+            'id' => $_SESSION['user_id'],
+        ]);
+
+        return $statement->fetchAll(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, Task::class);
+    }
 
 
+    public function addTask(Task $task): bool
+    {
+        $statement = $this->pdo->prepare(
+            'INSERT INTO tasks (user_id, description, isDone) VALUES (:user_id, :description, :isDone)'
+        );
 
+        return $statement->execute([
+            'user_id' => $_SESSION['user_id'],
+            'description' => $task->getDescription(),
+            'isDone' => 0
+        ]);
+    }
 }
