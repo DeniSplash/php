@@ -78,7 +78,8 @@
 
     <div class="col-md-3 text-end">
         <?php if ($username === null) : ?>
-            <button onclick="window.location.href='/?controller=security';" type="button" class="btn btn-primary">Вход</button>
+          <button onclick="window.location.href='/?controller=registration';" type="button" class="btn btn-primary">Регистрация</button>
+          <button onclick="window.location.href='/?controller=security';" type="button" class="btn btn-primary">Вход</button>
         <?php endif ?>
 
         <?php if ($username !== null) : ?>
